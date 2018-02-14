@@ -27,3 +27,37 @@ static void FULLCONE_init(struct xt_entry_target *t)
   struct nf_nat_ipv4_multi_range_compat *mr = ( struct nf_nat_ipv4_multi_range_compat *)t->data;
   mr->rangesize = 1;
 }
+
+static void FULLCONE_parse(struct xt_option_call *cb)
+{
+  
+}
+
+static void FULLCONE_print(const void *ip, const struct xt_entry_target *target, int numeric)
+{
+  printf("FULLCONE NAT ");
+}
+
+static void FULLCONE_save(const void *ip, const struct xt_entry_target *target)
+{
+    printf("FULLCONE NAT ");
+}
+
+static struct xtables_target fullcone_tg_reg = {
+  .name = "FULLCONE",
+  .version = XTABLES_VERSION,
+  .family = NFPROTO_IPV4,
+  .size = XT_ALIGN(sizeof(struct nf_nat_ipv4_multi_range_compat)),
+  .userspace = XT_ALIGN(sizeof(struct nf_nat_ipv4_multi_range_compat)),
+  .help = FULLCONE_help,
+  .init = FULLCONE_init,
+  .x6_parse = FULLCONE_parse,
+  .print = FULLCONE_print,
+  .save = FULLCONE_save,
+  .x6_options = FULLCONE_opts,
+};
+
+void _init(void)
+{
+  xtables_register_target(&fullcone_tg_reg);
+}
