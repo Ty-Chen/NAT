@@ -33,19 +33,53 @@ static void SYMMETRIC_init(struct xt_entry_target *t)
   mr->rangesize = 1;
 }
 
+static void SYMMETRIC_parse_ports(struct xt_option_call *cb)
+{
+    char *end;
+    unsigned int pace;
+    mr->range[0].flags |= NF_NAT_RANGE_PROTO_SPECIFIED;
+    mr->range[0].flags |= NF_NAT_RANGE_PROTO_RANDOM;
+    
+    if (!xtables_strtoui(arg, &end, &pace, 0, UINT16_MAX))
+        xtables_param_act(XTF_BAD_VALUE, "SYMMETRIC", "--pace", arg);
+    
+    switch(*end)
+    {
+        case '\0':
+            mr->range[0].pace = pace;
+            return;
+        default:
+            break;
+    }
+    xtables_param_act(XTF_BAD_VALUE, "SYMMETRIC", "--pace", arg);
+}
+
 static void SYMMETRIC_parse(struct xt_option_call *cb)
 {
-  
+    const struct ipt_entry *entry = cb->xt_entry;
+    int portok;
+    struct nf_nat_ipv4_multi_range_compat *mr = cb->data;
+    
+    xtables_option_parse(cb);
+    
+    switch(cb->entry->id)
+    {
+        case O_PACE:
+            parse_ports(cb->arg, mr);
+            break;
+    }
 }
 
 static void SYMMETRIC_print(const void *ip, const struct xt_entry_target *target, int numeric)
 {
-  printf("FULLCONE NAT ");
+    const struct nf_nat_ipv4_multi_range_compat *mr = (const void*)target->data;
+    printf("SYMMETIRC with pace %u", mr->range[0].pace);
 }
 
 static void SYMMETRIC_save(const void *ip, const struct xt_entry_target *target)
 {
-    printf("FULLCONE NAT ");
+    const struct nf_nat_ipv4_multi_range_compat *mr = (const void*)target->data;
+    printf("SYMMETIRC with pace %u", mr->range[0].pace);
 }
 
 static struct xtables_target symmetric_tg_reg = {
