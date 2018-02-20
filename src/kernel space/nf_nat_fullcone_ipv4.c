@@ -61,22 +61,25 @@ nf_nat_fullcone_ipv4(struct sk_buff *skb, unsigned int hooknum,
 	struct nf_conn_nat *nat;
 	enum ip_conntrack_info ctinfo;
 	struct nf_nat_range newrange;
-	const struct rtable *rt;
-	__be32 newsrc, nh;
+	__be32 newdst;
 
-	WARN_ON(hooknum != NF_INET_POST_ROUTING);
+	//we need to monitor packets at prerouting and put dst to nf_nat_setup_info
+	NF_CT_ASSERT(hooknum == NF_INET_PRE_ROUTING);
 
-	ct = nf_ct_get(skb, &ctinfo);
-
-	WARN_ON(!(ct && (ctinfo == IP_CT_NEW || ctinfo == IP_CT_RELATED ||
-			 ctinfo == IP_CT_RELATED_REPLY)));
+	ct = nf_ct_get(skb, &ctinfo);		//get infomationn from sockets
+	nat = nfct_nat(ct);
 
 	/* Source address is 0.0.0.0 - locally generated packet that is
 	 * probably not supposed to be masqueraded.
 	 */
 	if (ct->tuplehash[IP_CT_DIR_ORIGINAL].tuple.src.u3.ip == 0)
 		return NF_ACCEPT;
+	
+	newdst = nf_nat_fullcone_match(ct->tuplehash[IP_CT_DIR_ORIGINAL].tuple);
 
+	
+	
+	
 	rt = skb_rtable(skb);
 	nh = rt_nexthop(rt, ip_hdr(skb)->daddr);
 	newsrc = inet_select_addr(out, nh, RT_SCOPE_UNIVERSE);
