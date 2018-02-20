@@ -53,7 +53,9 @@ nf_nat_fullcone_match(struct nf_conntrack_tuple tuple)
 EXPORT_SYMBOL_GPL(nf_nat_fullcone_match);
 
 unsigned int
-nf_nat_fullcone_ipv4)
+nf_nat_fullcone_ipv4(struct sk_buff *skb, unsigned int hooknum,
+		    const struct nf_nat_range *range,
+		    const struct net_device *out)
 {
 	struct nf_conn *ct;
 	struct nf_conn_nat *nat;
