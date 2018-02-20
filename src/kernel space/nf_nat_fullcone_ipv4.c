@@ -32,6 +32,27 @@
 #include <net/netfilter/nf_conntrack_zones.h>
 
 unsigned int
+nf_nat_fullcone_match(struct nf_conntrack_tuple tuple)
+{
+	extern struct MatchTupleList TupleHead;
+	struct list_head *pos;
+	struct MatchTupleList *p;
+	
+	list_for_each(pos, &TupleHead.list)
+	{
+		p = list_entry(pos, struct MatchTupleList, list);
+		if (tuple.dst.protonum == p->tuple.dst.protonum &&
+		   nf_inet_addr_cmp(&tuple.dst.u3, &p->tuple.dst.u3) &&
+		   p->tuple.dst.u.all == tuple.dst.u.all)
+		{
+			return p->tuple.src.u3.ip;
+		}
+	}
+	return 0;
+}
+EXPORT_SYMBOL_GPL(nf_nat_fullcone_match);
+
+unsigned int
 nf_nat_fullcone_ipv4)
 {
 	struct nf_conn *ct;
