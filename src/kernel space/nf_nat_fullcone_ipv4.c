@@ -69,6 +69,9 @@ nf_nat_fullcone_ipv4(struct sk_buff *skb, unsigned int hooknum,
 	ct = nf_ct_get(skb, &ctinfo);		//get infomationn from sockets
 	nat = nfct_nat(ct);
 
+	NF_CT_ASSERT（ct && (ctinfo == IP_CT_NEW || ctinfo == IP_CT_RELATED || 
+			   ctinfo == IP_CT_RELATED_REPLY)）；
+				
 	/* Source address is 0.0.0.0 - locally generated packet that is
 	 * probably not supposed to be masqueraded.
 	 */
@@ -77,34 +80,24 @@ nf_nat_fullcone_ipv4(struct sk_buff *skb, unsigned int hooknum,
 	
 	newdst = nf_nat_fullcone_match(ct->tuplehash[IP_CT_DIR_ORIGINAL].tuple);
 
-	
-	
-	
-	rt = skb_rtable(skb);
-	nh = rt_nexthop(rt, ip_hdr(skb)->daddr);
-	newsrc = inet_select_addr(out, nh, RT_SCOPE_UNIVERSE);
-	if (!newsrc) {
-		pr_info("%s ate my IP address\n", out->name);
-		return NF_DROP;
+	if (newdst)
+	{
+		//transfer from original range
+		memset(&newrange.min_addr, 0, sizeof(newrange.min_addr));
+		memset(&newrange.max_addr, 0, sizeof(newrange.max_addr));
+		newrange.flags = range->flags | NF_NAT_RANGE_MAP_IPS;
+		newrange.min_addr.ip = newdst;
+		newrange.max_addr.ip = newdst;
+		newrange.min_proto = range->min_proto;
+		newrange.max_proto = range->max_proto;
+		
+		//Hnad modified range to generic setup. Change dst by normal way.
+		return nf_nat_setup_info(ct, &newrange, NF_NAT_MANIP_DST);
 	}
-
-	nat = nf_ct_nat_ext_add(ct);
-	if (nat)
-		nat->masq_index = out->ifindex;
-
-	/* Transfer from original range. */
-	memset(&newrange.min_addr, 0, sizeof(newrange.min_addr));
-	memset(&newrange.max_addr, 0, sizeof(newrange.max_addr));
-	newrange.flags       = range->flags | NF_NAT_RANGE_MAP_IPS;
-	newrange.min_addr.ip = newsrc;
-	newrange.max_addr.ip = newsrc;
-	newrange.min_proto   = range->min_proto;
-	newrange.max_proto   = range->max_proto;
-
-	/* Hand modified range to generic setup. */
-	return nf_nat_setup_info(ct, &newrange, NF_NAT_MANIP_SRC);
+	else
+		return NF_ACCEPT;			
 }
-EXPORT_SYMBOL_GPL(nf_nat_masquerade_ipv4);
+EXPORT_SYMBOL_GPL(nf_nat_fullcone_ipv4);
 
 static int device_cmp(struct nf_conn *i, void *ifindex)
 {
