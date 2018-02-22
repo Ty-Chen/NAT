@@ -131,7 +131,7 @@ static int masq_device_event(struct notifier_block *this,
 	return NOTIFY_DONE;
 }
 
-static int masq_inet_event(struct notifier_block *this,
+static int fullcone_inet_event(struct notifier_block *this,
 			   unsigned long event,
 			   void *ptr)
 {
@@ -147,42 +147,42 @@ static int masq_inet_event(struct notifier_block *this,
 		return NOTIFY_DONE;
 
 	netdev_notifier_info_init(&info, idev->dev);
-	return masq_device_event(this, event, &info);
+	return fullcone_device_event(this, event, &info);
 }
 
-static struct notifier_block masq_dev_notifier = {
-	.notifier_call	= masq_device_event,
+static struct notifier_block fullcone_dev_notifier = {
+	.notifier_call	= fullcone_device_event,
 };
 
-static struct notifier_block masq_inet_notifier = {
-	.notifier_call	= masq_inet_event,
+static struct notifier_block fullcone_inet_notifier = {
+	.notifier_call	= fullcone_inet_event,
 };
 
-static atomic_t masquerade_notifier_refcount = ATOMIC_INIT(0);
+static atomic_t fullcone_notifier_refcount = ATOMIC_INIT(0);
 
-void nf_nat_masquerade_ipv4_register_notifier(void)
+void nf_nat_fullcone_ipv4_register_notifier(void)
 {
 	/* check if the notifier was already set */
 	if (atomic_inc_return(&masquerade_notifier_refcount) > 1)
 		return;
 
 	/* Register for device down reports */
-	register_netdevice_notifier(&masq_dev_notifier);
+	register_netdevice_notifier(&fullcone_dev_notifier);
 	/* Register IP address change reports */
-	register_inetaddr_notifier(&masq_inet_notifier);
+	register_inetaddr_notifier(&fullcone_inet_notifier);
 }
-EXPORT_SYMBOL_GPL(nf_nat_masquerade_ipv4_register_notifier);
+EXPORT_SYMBOL_GPL(nf_nat_fullcone_ipv4_register_notifier);
 
-void nf_nat_masquerade_ipv4_unregister_notifier(void)
+void nf_nat_fullcone_ipv4_unregister_notifier(void)
 {
 	/* check if the notifier still has clients */
 	if (atomic_dec_return(&masquerade_notifier_refcount) > 0)
 		return;
 
-	unregister_netdevice_notifier(&masq_dev_notifier);
-	unregister_inetaddr_notifier(&masq_inet_notifier);
+	unregister_netdevice_notifier(&fullcone_dev_notifier);
+	unregister_inetaddr_notifier(&fullcone_inet_notifier);
 }
-EXPORT_SYMBOL_GPL(nf_nat_masquerade_ipv4_unregister_notifier);
+EXPORT_SYMBOL_GPL(nf_nat_fullcone_ipv4_unregister_notifier);
 
 MODULE_LICENSE("GPL");
 MODULE_AUTHOR("Ty Chen <tianyuch@hotmail.com>");
