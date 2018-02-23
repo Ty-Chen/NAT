@@ -19,7 +19,7 @@
 #include <net/checksum.h>
 #include <net/route.h>
 #include <net/netfilter/nf_nat.h>
-#include <net/netfilter/ipv4/nf_nat_fullcone.h>
+#include <net/netfilter/ipv4/nf_nat_restrictedcone.h>
 #include <net/netfilter/nf_nat_core.h>
 #include <net/netfilter/nf_conntrack.h>
 #include <net/netfilter/nf_conntrack_core.h>
@@ -32,7 +32,7 @@
 #include <net/netfilter/nf_conntrack_zones.h>
 
 unsigned int
-nf_nat_fullcone_match(struct nf_conntrack_tuple tuple)
+nf_nat_restrictedcone_match(struct nf_conntrack_tuple tuple)
 {
 	extern struct MatchTupleList TupleHead;
 	struct list_head *pos;
@@ -45,15 +45,19 @@ nf_nat_fullcone_match(struct nf_conntrack_tuple tuple)
 		   nf_inet_addr_cmp(&tuple.dst.u3, &p->tuple.dst.u3) &&
 		   p->tuple.dst.u.all == tuple.dst.u.all)
 		{
-			return p->tuple.src.u3.ip;
+			if (tuple.src.u3.ip == p->specifiedIP)
+			{
+				return p->tuple.src.u3.ip;
+			}			
+			
 		}
 	}
 	return 0;
 }
-EXPORT_SYMBOL_GPL(nf_nat_fullcone_match);
+EXPORT_SYMBOL_GPL(nf_nat_restrictedcone_match);
 
 unsigned int
-nf_nat_fullcone_ipv4(struct sk_buff *skb, unsigned int hooknum,
+nf_nat_restrictedcone_ipv4(struct sk_buff *skb, unsigned int hooknum,
 		    const struct nf_nat_range *range,
 		    const struct net_device *out)
 {
@@ -78,7 +82,7 @@ nf_nat_fullcone_ipv4(struct sk_buff *skb, unsigned int hooknum,
 	if (ct->tuplehash[IP_CT_DIR_ORIGINAL].tuple.src.u3.ip == 0)
 		return NF_ACCEPT;
 	
-	newdst = nf_nat_fullcone_match(ct->tuplehash[IP_CT_DIR_ORIGINAL].tuple);
+	newdst = nf_nat_restrictedcone_match(ct->tuplehash[IP_CT_DIR_ORIGINAL].tuple);
 
 	if (newdst)
 	{
@@ -97,7 +101,7 @@ nf_nat_fullcone_ipv4(struct sk_buff *skb, unsigned int hooknum,
 	else
 		return NF_ACCEPT;			
 }
-EXPORT_SYMBOL_GPL(nf_nat_fullcone_ipv4);
+EXPORT_SYMBOL_GPL(nf_nat_restrictedcone_ipv4);
 
 static int device_cmp(struct nf_conn *i, void *ifindex)
 {
@@ -131,7 +135,7 @@ static int masq_device_event(struct notifier_block *this,
 	return NOTIFY_DONE;
 }
 
-static int fullcone_inet_event(struct notifier_block *this,
+static int restrictedcone_inet_event(struct notifier_block *this,
 			   unsigned long event,
 			   void *ptr)
 {
@@ -147,42 +151,42 @@ static int fullcone_inet_event(struct notifier_block *this,
 		return NOTIFY_DONE;
 
 	netdev_notifier_info_init(&info, idev->dev);
-	return fullcone_device_event(this, event, &info);
+	return restrictedcone_device_event(this, event, &info);
 }
 
-static struct notifier_block fullcone_dev_notifier = {
-	.notifier_call	= fullcone_device_event,
+static struct notifier_block restrictedcone_dev_notifier = {
+	.notifier_call	= restrictedcone_device_event,
 };
 
-static struct notifier_block fullcone_inet_notifier = {
-	.notifier_call	= fullcone_inet_event,
+static struct notifier_block restrictedcone_inet_notifier = {
+	.notifier_call	= restrictedcone_inet_event,
 };
 
-static atomic_t fullcone_notifier_refcount = ATOMIC_INIT(0);
+static atomic_t restrictedcone_notifier_refcount = ATOMIC_INIT(0);
 
-void nf_nat_fullcone_ipv4_register_notifier(void)
+void nf_nat_restrictedcone_ipv4_register_notifier(void)
 {
 	/* check if the notifier was already set */
 	if (atomic_inc_return(&masquerade_notifier_refcount) > 1)
 		return;
 
 	/* Register for device down reports */
-	register_netdevice_notifier(&fullcone_dev_notifier);
+	register_netdevice_notifier(&restrictedcone_dev_notifier);
 	/* Register IP address change reports */
-	register_inetaddr_notifier(&fullcone_inet_notifier);
+	register_inetaddr_notifier(&restrictedcone_inet_notifier);
 }
-EXPORT_SYMBOL_GPL(nf_nat_fullcone_ipv4_register_notifier);
+EXPORT_SYMBOL_GPL(nf_nat_restrictedcone_ipv4_register_notifier);
 
-void nf_nat_fullcone_ipv4_unregister_notifier(void)
+void nf_nat_restrictedcone_ipv4_unregister_notifier(void)
 {
 	/* check if the notifier still has clients */
 	if (atomic_dec_return(&masquerade_notifier_refcount) > 0)
 		return;
 
-	unregister_netdevice_notifier(&fullcone_dev_notifier);
-	unregister_inetaddr_notifier(&fullcone_inet_notifier);
+	unregister_netdevice_notifier(&restrictedcone_dev_notifier);
+	unregister_inetaddr_notifier(&restrictedcone_inet_notifier);
 }
-EXPORT_SYMBOL_GPL(nf_nat_fullcone_ipv4_unregister_notifier);
+EXPORT_SYMBOL_GPL(nf_nat_restrictedcone_ipv4_unregister_notifier);
 
 MODULE_LICENSE("GPL");
 MODULE_AUTHOR("Ty Chen <tianyuch@hotmail.com>");
