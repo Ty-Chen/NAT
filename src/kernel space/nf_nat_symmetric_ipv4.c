@@ -29,7 +29,8 @@ nf_nat_symmetric_ipv4(struct sk_buff *skb, unsigned int hooknum,
 	WARN_ON(hooknum != NF_INET_POST_ROUTING);
 
 	ct = nf_ct_get(skb, &ctinfo);
-
+	nat = nfct_nat(ct);
+	
 	WARN_ON(!(ct && (ctinfo == IP_CT_NEW || ctinfo == IP_CT_RELATED ||
 			 ctinfo == IP_CT_RELATED_REPLY)));
 
@@ -47,9 +48,7 @@ nf_nat_symmetric_ipv4(struct sk_buff *skb, unsigned int hooknum,
 		return NF_DROP;
 	}
 
-	nat = nf_ct_nat_ext_add(ct);
-	if (nat)
-		nat->masq_index = out->ifindex;
+	nat->masq_index = out->ifindex;
 
 	/* Transfer from original range. */
 	memset(&newrange.min_addr, 0, sizeof(newrange.min_addr));
@@ -76,7 +75,7 @@ static int device_cmp(struct nf_conn *i, void *ifindex)
 	return nat->masq_index == (int)(long)ifindex;
 }
 
-static int symmetric_device_event(struct notifier_block *this,
+static int masq_device_event(struct notifier_block *this,
 			     unsigned long event,
 			     void *ptr)
 {
@@ -97,7 +96,7 @@ static int symmetric_device_event(struct notifier_block *this,
 	return NOTIFY_DONE;
 }
 
-static int symmetric_inet_event(struct notifier_block *this,
+static int masq_inet_event(struct notifier_block *this,
 			   unsigned long event,
 			   void *ptr)
 {
@@ -117,11 +116,11 @@ static int symmetric_inet_event(struct notifier_block *this,
 }
 
 static struct notifier_block masq_dev_notifier = {
-	.notifier_call	= symmetric_device_event,
+	.notifier_call	= masq_device_event,
 };
 
 static struct notifier_block masq_inet_notifier = {
-	.notifier_call	= symmetric_inet_event,
+	.notifier_call	= masq_inet_event,
 };
 
 static atomic_t symmetric_notifier_refcount = ATOMIC_INIT(0);
