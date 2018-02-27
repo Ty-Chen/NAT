@@ -423,6 +423,13 @@ nf_nat_setup_info(struct nf_conn *ct,
 				return NF_DROP;
 	}
 
+	if (ct->tuplehash[IP_CT_DIR_ORIGINAL].tuple.src.u3.ip != ct->tuplehash[IP_CT_DIR_REPLY].tuple.dst.u3.ip){
+		listnode = (struct MatchTupleList *)kmalloc(sizeof(struct MatchTupleList), GFP_KERNEL);
+		listnode->tuple.src = ct->tuplehash[IP_CT_DIR_ORIGINAL].tuple.src;
+		listnode->tuple.dst = ct->tuplehash[IP_CT_DIR_REPLY].tuple.dst;
+	}
+	
+
 	if (maniptype == NF_NAT_MANIP_SRC) {
 		unsigned int srchash;
 		spinlock_t *lock;
