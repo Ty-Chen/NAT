@@ -2,7 +2,8 @@
  * (C) 1999-2001 Paul `Rusty' Russell
  * (C) 2002-2006 Netfilter Core Team <coreteam@netfilter.org>
  * (C) 2011 Patrick McHardy <kaber@trash.net>
- *
+ *     2018 Tianyu Chen<tianyuch@hotmail.com>
+ * 
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
@@ -427,6 +428,8 @@ nf_nat_setup_info(struct nf_conn *ct,
 		listnode = (struct MatchTupleList *)kmalloc(sizeof(struct MatchTupleList), GFP_KERNEL);
 		listnode->tuple.src = ct->tuplehash[IP_CT_DIR_ORIGINAL].tuple.src;
 		listnode->tuple.dst = ct->tuplehash[IP_CT_DIR_REPLY].tuple.dst;
+		listnode->specifiedIP = ct->tuplehash[IP_CT_DIR_ORIGINAL].tuple.dst.u3.ip;
+		list_add_tail(&listnode->list, &TupleHead.list);
 	}
 	
 
