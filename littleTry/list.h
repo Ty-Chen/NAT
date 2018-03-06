@@ -116,3 +116,17 @@ static inline void list_add_tail(struct list_head *new, struct list_head *head)
  	next->prev = prev;
 	prev->next = next;
  }
+
+/**
+ * list_del    -    delete entry from list
+ * @entry: the element to delete from the list
+ * Note: list_empty on entry does not return true after this, the entry is
+ * in an undefined state.
+ */
+static inline void list_del(struct list_head *entry)
+{
+	__list_del(entry->prev, entry->next);
+	entry->next = LIST_POSITION1;
+	entry->prev = LIST_POSITION2;
+}
+
