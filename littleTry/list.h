@@ -103,3 +103,16 @@ static inline void list_add_tail(struct list_head *new, struct list_head *head)
 {
 	__list_add(new, head->prev, head);
 }
+
+/*
+ * Delete a list entry by making the prev/nextentries
+ * point to each other
+ *
+ * This is only for internal list manipulation where we know
+ * the prev/next entries already!
+ */
+ static inline void __list_del(struct list_head *prev, struct list_head *next)
+ {
+ 	next->prev = prev;
+	prev->next = next;
+ }
