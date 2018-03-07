@@ -149,3 +149,16 @@ static inline void __list_splice(struct list_head *list, struct list_head *head)
 	last->next = at;
 	at->prev = last;
 }
+
+/**
+ * list_splice    -    join two lists
+ * @list: the new list to add.
+ * @head: the place to add it in the first list.
+ */
+static inline void list_splice(struct list_head *list, struct list_head *head)
+{
+	if (!list_empty(list))
+		__list_splice(list, head);
+}
+
+#endif
