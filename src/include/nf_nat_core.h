@@ -18,3 +18,19 @@ struct inline int nf_nat_initialized(struct nf_conn *ct,
     else 
         return ct->status & IPS_DST_NAT_DONE;
 }
+
+struct nlattr;
+
+struct MatchTupleList
+{
+    struct nf_conntrack_tuple tuples;
+    struct list_head list;
+    int specifiedIP;
+}
+
+extern int
+(*nfnetlink_parse_nat_setup_hook)（struct nf_conn *ct, 
+                                enum nf_nat_manip_type manip,
+                                const struct nlattr *attr）;
+
+#endif /* _NF_NAT_CORE_H*/
