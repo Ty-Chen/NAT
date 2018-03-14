@@ -17,3 +17,9 @@
 MODULE_LICENSE("Dual BSD/GPL");
 
 #define ETH "eth0"
+#define SIP "192.168.1.234"
+#define DIP "192.168.1.100"
+#define SPORT 38888
+#define DPORT 18888
+
+
