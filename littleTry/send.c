@@ -22,4 +22,14 @@ MODULE_LICENSE("Dual BSD/GPL");
 #define SPORT 38888
 #define DPORT 18888
 
+#define NIPQUAD(addr)\
+    ((unsigned char *)&addr)[0],\
+    ((unsigned char *)&addr)[1],\
+    ((unsigned char *)&addr)[2],\
+    ((unsigned char *)&addr)[3]
+
+unsigned char SMAC[ETH_ALEN] = 
+{0x1c, 0x4b, 0xd6, 0x7a, 0x55, 0x96};
+unsigned char DMAC[ETH_ALEN] = 
+{0xe0, 0xcb, 0x4e, 0xb0, 0xed, 0xd8};
 
