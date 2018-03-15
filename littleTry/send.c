@@ -46,5 +46,10 @@ static int build_and_xmit_udp(char *eth, u_char *smac, u_char *dmac,
     u_char *pdata = NULL;
     int nret = 1;
     
+    if ( NULL == SMAC || NULL == dmac )
+    {
+        goto out;
+    }
+    
     
 }
