@@ -33,3 +33,18 @@ unsigned char SMAC[ETH_ALEN] =
 unsigned char DMAC[ETH_ALEN] = 
 {0xe0, 0xcb, 0x4e, 0xb0, 0xed, 0xd8};
 
+//build and send an udp datagram
+static int build_and_xmit_udp(char *eth, u_char *smac, u_char *dmac,
+                             u_char *pkt, int pkt_len, u_long sip, u_long dip,
+                             u_short sport, u_short dport)
+{
+    struct sk_buff *skb = NULL;
+    struct net_device *dev = NULL;
+    struct udphdr *hdph = NULL;
+    struct iphdr *iph = NULL;
+    struct ethhdr *ethdr = NULL;
+    u_char *pdata = NULL;
+    int nret = 1;
+    
+    
+}
