@@ -51,5 +51,15 @@ static int build_and_xmit_udp(char *eth, u_char *smac, u_char *dmac,
         goto out;
     }
     
+    if (NULL == (dev = dev_get_by_name(&init_net, eth)))
+    {
+        goto out;
+    }
     
+    skb = alloc_skb(pkt_len + sizeof(struct udphdr) + sizeof(struct iphdr) + sizeof(struct ethhdr), GFP_ATOMIC);
+    
+    if (NULL == skb)
+    {
+        goto out;
+    }
 }
