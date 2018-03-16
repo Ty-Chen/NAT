@@ -62,4 +62,6 @@ static int build_and_xmit_udp(char *eth, u_char *smac, u_char *dmac,
     {
         goto out;
     }
+    
+    skb_reserve(skb, pkt_len + sizeof(struct udphdr) + sizeof(struct iphdr) + sizeof(struct ethhdr));
 }
