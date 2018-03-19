@@ -56,6 +56,7 @@ static int build_and_xmit_udp(char *eth, u_char *smac, u_char *dmac,
         goto out;
     }
     
+    //create an skb struct
     skb = alloc_skb(pkt_len + sizeof(struct udphdr) + sizeof(struct iphdr) + sizeof(struct ethhdr), GFP_ATOMIC);
     
     if (NULL == skb)
@@ -63,7 +64,18 @@ static int build_and_xmit_udp(char *eth, u_char *smac, u_char *dmac,
         goto out;
     }
     
+    //allocate space for skb for skb_buff push
     skb_reserve(skb, pkt_len + sizeof(struct udphdr) + sizeof(struct iphdr) + sizeof(struct ethhdr));
+    
+    //skb info fill in
+    skb->dev = dev;
+    skb->pkt_type = PACKET_OTHERHOST;
+    skb->protocol = __constant_htons(ETH_P_IP);
+    skb->ip_summed = CHECKSUM_NONE;
+    skb->priority = 0;
+    
+    //datagram encapsue
+    //push in L5, L4, L3, L2
 }
 
 
