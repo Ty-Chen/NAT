@@ -76,6 +76,12 @@ static int build_and_xmit_udp(char *eth, u_char *smac, u_char *dmac,
     
     //datagram encapsue
     //push in L5, L4, L3, L2
+    pdata = skb_push(skb, pkt_len);
+    udph = (struct udphdr*)skb_push(skb, sizeof(struct udphdr));
+    iph = (struct iphdr*)skb_push(skb, sizeof(struct iphdr));
+    ethdr = (struct ethhdr*)skb_push(skb, sizeof(struct ethhdr));
+    
+    
 }
 
 
