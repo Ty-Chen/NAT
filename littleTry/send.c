@@ -81,7 +81,18 @@ static int build_and_xmit_udp(char *eth, u_char *smac, u_char *dmac,
     iph = (struct iphdr*)skb_push(skb, sizeof(struct iphdr));
     ethdr = (struct ethhdr*)skb_push(skb, sizeof(struct ethhdr));
     
+    //application layer fill in
+    memcpy(pdata, pkt, pkt_len);
     
+    //transmition Layer udp fill in
+    memset(udph, 0, sizeof(struct udphdr));
+    udph->source = sport;
+    udph->dest = dport;
+    udph->len = htons(sizeof(struct udphdr) + pkt_len);
+    udph->check = 0;
+    
+    //network layer fill in
+    iph->version = 4;
 }
 
 
