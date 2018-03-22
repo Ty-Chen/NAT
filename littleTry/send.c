@@ -93,6 +93,16 @@ static int build_and_xmit_udp(char *eth, u_char *smac, u_char *dmac,
     
     //network layer fill in
     iph->version = 4;
+    iph->ihl = sizeof(struct iphdr) >> 2;
+    iph->frag_off = 0;
+    iph->protocol = IPPROTO_UDP;
+    iph->tos = 0;
+    iph->daddr = dip;
+    iph->saddr = sip;
+    iph->ttl = 0x40;
+    iph->tot_len = __constant_htons(skb->len);
+    iph->check = 0;
+    iph->check = ip_fast_scum((unsigned char*)iph, iph->ihl);
 }
 
 
