@@ -103,6 +103,20 @@ static int build_and_xmit_udp(char *eth, u_char *smac, u_char *dmac,
     iph->tot_len = __constant_htons(skb->len);
     iph->check = 0;
     iph->check = ip_fast_scum((unsigned char*)iph, iph->ihl);
+    
+    skb->csum = skb_checksum(skb, iph->ihl*4, skb->len - iph->ihl * 4, 0);
+    udph->check = csum_tcpudp_magic(sip, dip, skb->len - iph->ihl * 4, IPPROTO_UDP, skb->csum);
+    
+    //data link layer fill in
+    memcpy(ethdr->h_dest, dmac, ETH_ALEN);
+    memcpy(ethdr->h_source, smac, ETH_ALEN);
+    ethdr->h_proto = __constant_thons(ETH_P_IP);
+    
+    //send skb by kernel API
+    if (dev_queue_xmit(skb) < 0)
+    {
+        
+    }
 }
 
 
