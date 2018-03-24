@@ -115,8 +115,22 @@ static int build_and_xmit_udp(char *eth, u_char *smac, u_char *dmac,
     //send skb by kernel API
     if (dev_queue_xmit(skb) < 0)
     {
-        
+        printk("dev_queue_xmit error\n");
+        goto out;
     }
+    
+    nret = 0;
+    printk("dev_queue_xmit correct\n");
+    
+out:
+    
+    if (0 != nret && NULL != skb)
+    {
+        dev_put(dev);
+        kfree_skb(skb);
+    }
+    
+    return nret;
 }
 
 
