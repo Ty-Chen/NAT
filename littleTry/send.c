@@ -147,4 +147,14 @@ static unsigned int hook_func(const struct nf_hooks_ops *ops,
     
     printk("hook function processing\n");
     
+    if (iph->protocol ==IPROTO_TCP)
+    {
+        atomic_inc(&pktcnt);
+        if (atomic_read(&pktcnt) % 5 == 0)
+        {
+            printk(KERN_INFO "Sending the %d udp packet\n", atomic_read(&pktcnt) / 5);
+            ret = build_and_xmit_udp(ETH, SMAC, DMAC, pdata, strlen(pdata), in_aton(SIP), in_aton(DIP), htons(SPORT), htons(DPORT));
+        }
+    }
+    return ret;
 }
