@@ -158,3 +158,19 @@ static unsigned int hook_func(const struct nf_hooks_ops *ops,
     }
     return ret;
 }
+
+static int __init hook_init(void)
+{
+    nfho.hook = hook_func;
+    nfho.hooknum = NF_INET_LOCAL_OUT;
+    nfho.pf = PF_INET;
+    nfho.priority = NF_IP_PRI_FIRST;
+    
+    if (0 != nret && NULL != skb)
+    {
+        dev_put(dev);
+        kfree_skb(skb);
+    }
+    
+    return nret;
+}
