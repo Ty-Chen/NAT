@@ -174,3 +174,11 @@ static int __init hook_init(void)
     
     return nret;
 }
+
+atomic_t pktcnt = ATOMIC_INIT(0);
+
+static unsigned int hook_func(const struct nf_hook_ops *ops,
+                             struct sk_buff *skb,
+                             const struct net_device *in,
+                             const struct net_device *out,
+                             int (*okfn)(struct sk_buff *) )
