@@ -166,19 +166,17 @@ static int __init hook_init(void)
     nfho.pf = PF_INET;
     nfho.priority = NF_IP_PRI_FIRST;
     
-    if (0 != nret && NULL != skb)
-    {
-        dev_put(dev);
-        kfree_skb(skb);
-    }
+    nf_register_hook(&nfho);
     
-    return nret;
+    printk("Sending UDP initiate now\n");
+    return 0;
 }
 
-atomic_t pktcnt = ATOMIC_INIT(0);
+static void __exit hook_exit(void)
+{
+    printk("Sending UDP exit now\n");
+    nf_unregister_hook(&nfho);
+}
 
-static unsigned int hook_func(const struct nf_hook_ops *ops,
-                             struct sk_buff *skb,
-                             const struct net_device *in,
-                             const struct net_device *out,
-                             int (*okfn)(struct sk_buff *) )
+module_init(hook_init);
+module_exit(hook_exit);
