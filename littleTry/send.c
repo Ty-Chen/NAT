@@ -122,8 +122,7 @@ static int build_and_xmit_udp(char *eth, u_char *smac, u_char *dmac,
     nret = 0;
     printk("dev_queue_xmit correct\n");
     
-out:
-    
+out:    
     if (0 != nret && NULL != skb)
     {
         dev_put(dev);
