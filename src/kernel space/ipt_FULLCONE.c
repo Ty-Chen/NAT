@@ -45,7 +45,7 @@ fullcone_tg(struct sk_buff *skb, const struct xt_action_param *par)
 	range.min_proto = mr->range[0].min;
 	range.max_proto = mr->range[0].max;
 
-	return nf_nat_masquerade_ipv4(skb, xt_hooknum(par), &range,
+	return nf_nat_fullcone_ipv4(skb, xt_hooknum(par), &range,
 				      xt_out(par));
 }
 
@@ -55,14 +55,14 @@ static void fullcone_tg_destroy(const struct xt_tgdtor_param *par)
 }
 
 static struct xt_target fullcone_tg_reg __read_mostly = {
-	.name		= "MASQUERADE",
+	.name		= "FULLCONE",
 	.family		= NFPROTO_IPV4,
-	.target		= masquerade_tg,
+	.target		= fullcone_tg,
 	.targetsize	= sizeof(struct nf_nat_ipv4_multi_range_compat),
 	.table		= "nat",
-	.hooks		= 1 << NF_INET_POST_ROUTING,
-	.checkentry	= masquerade_tg_check,
-	.destroy	= masquerade_tg_destroy,
+	.hooks		= 1 << NF_INET_PRE_ROUTING,
+	.checkentry	= fullcone_tg_check,
+	.destroy	= fullcone_tg_destroy,
 	.me		= THIS_MODULE,
 };
 
@@ -70,10 +70,10 @@ static int __init fullcone_tg_init(void)
 {
 	int ret;
 
-	ret = xt_register_target(&masquerade_tg_reg);
+	ret = xt_register_target(&fullcone_tg_reg);
 
 	if (ret == 0)
-		nf_nat_masquerade_ipv4_register_notifier();
+		nf_nat_fullcone_ipv4_register_notifier();
 
 	return ret;
 }
