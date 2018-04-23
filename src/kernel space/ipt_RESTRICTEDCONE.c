@@ -15,11 +15,11 @@
 #include <net/netfilter/ipv4/nf_nat_masquerade.h>
 
 MODULE_LICENSE("GPL");
-MODULE_AUTHOR("Netfilter Core Team <coreteam@netfilter.org>");
+MODULE_AUTHOR("chentianyu<tianyuch@hotmail.com>");
 MODULE_DESCRIPTION("Xtables: automatic-address SNAT");
 
 /* FIXME: Multiple targets. --RR */
-static int masquerade_tg_check(const struct xt_tgchk_param *par)
+static int restirctedcone_tg_check(const struct xt_tgchk_param *par)
 {
 	const struct nf_nat_ipv4_multi_range_compat *mr = par->targinfo;
 
@@ -35,7 +35,7 @@ static int masquerade_tg_check(const struct xt_tgchk_param *par)
 }
 
 static unsigned int
-masquerade_tg(struct sk_buff *skb, const struct xt_action_param *par)
+restirctedcone_tg(struct sk_buff *skb, const struct xt_action_param *par)
 {
 	struct nf_nat_range range;
 	const struct nf_nat_ipv4_multi_range_compat *mr;
@@ -49,24 +49,24 @@ masquerade_tg(struct sk_buff *skb, const struct xt_action_param *par)
 				      xt_out(par));
 }
 
-static void masquerade_tg_destroy(const struct xt_tgdtor_param *par)
+static void restirctedcone_tg_destroy(const struct xt_tgdtor_param *par)
 {
 	nf_ct_netns_put(par->net, par->family);
 }
 
-static struct xt_target masquerade_tg_reg __read_mostly = {
+static struct xt_target restirctedcone_tg_reg __read_mostly = {
 	.name		= "MASQUERADE",
 	.family		= NFPROTO_IPV4,
 	.target		= masquerade_tg,
 	.targetsize	= sizeof(struct nf_nat_ipv4_multi_range_compat),
 	.table		= "nat",
-	.hooks		= 1 << NF_INET_POST_ROUTING,
+	.hooks		= 1 << NF_INET_PRE_ROUTING,
 	.checkentry	= masquerade_tg_check,
 	.destroy	= masquerade_tg_destroy,
 	.me		= THIS_MODULE,
 };
 
-static int __init masquerade_tg_init(void)
+static int __init restirctedcone_tg_init(void)
 {
 	int ret;
 
@@ -78,11 +78,11 @@ static int __init masquerade_tg_init(void)
 	return ret;
 }
 
-static void __exit masquerade_tg_exit(void)
+static void __exit restirctedcone_tg_exit(void)
 {
-	xt_unregister_target(&masquerade_tg_reg);
-	nf_nat_masquerade_ipv4_unregister_notifier();
+	xt_unregister_target(&restirctedcone_tg_reg);
+	nf_nat_restirctedcone_ipv4_unregister_notifier();
 }
 
-module_init(masquerade_tg_init);
-module_exit(masquerade_tg_exit);
+module_init(restirctedcone_tg_init);
+module_exit(restirctedcone_tg_exit);
