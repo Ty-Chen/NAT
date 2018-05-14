@@ -1,0 +1,14 @@
+[share]
+    path = /home/ty
+    browseable = yes
+    available = yes
+    writable = yes
+    public = yes
+    guest ok = yes
+    security = share
+    create mask = 0777
+    directory mask = 0777
+    force user = ty
+    force group = ty
+    
+      
